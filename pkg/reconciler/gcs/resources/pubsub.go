@@ -18,6 +18,7 @@ package resources
 
 import (
 	"github.com/knative/pkg/kmeta"
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pubsubv1alpha1 "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
@@ -30,7 +31,14 @@ func MakePubSub(source *v1alpha1.GCSSource, topic string) *pubsubv1alpha1.GcpPub
 	labels := map[string]string{
 		"receive-adapter": "gcssource",
 	}
-	pubsubSecret := source.Spec.GCSCredsSecret
+
+	pubsubSecret := v1.SecretKeySelector{
+		LocalObjectReference: v1.LocalObjectReference{
+			Name: source.Spec.GCSCredsSecret,
+		},
+		Key: "key.json",
+	}
+
 	if source.Spec.GcpCredsSecret != nil {
 		pubsubSecret = *source.Spec.GcpCredsSecret
 	}

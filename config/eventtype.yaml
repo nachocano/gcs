@@ -58,7 +58,7 @@ spec:
 apiVersion: eventing.knative.dev/v1alpha1
 kind: EventType
 metadata:
- name: gcs-object-metadataUpdate
+ name: gcs-object-metadataupdate
 spec:
   type: com.google.storage.metadataUpdate
   importer:

@@ -57,6 +57,15 @@ const (
 	finalizerName       = controllerAgentName
 )
 
+var (
+	gcsEventTypes = map[string]string{
+		"com.google.storage.finalize":       "OBJECT_FINALIZE",
+		"com.google.storage.archive":        "OBJECT_ARCHIVE",
+		"com.google.storage.delete":         "OBJECT_DELETE",
+		"com.google.storage.metadataUpdate": "OBJECT_METADATA_UPDATE",
+	}
+)
+
 // Reconciler is the controller implementation for Gcssource resources
 type Reconciler struct {
 	// kubeclientset is a standard kubernetes clientset
@@ -301,21 +310,16 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 		customAttributes[k] = v
 	}
 
-	//TODO translate event types
-	// com.google.storage.finalize -> OBJECT_FINALIZE
-	// com.google.storage.archive -> OBJECT_ARCHIVE
-	// com.google.storage.delete -> OBJECT_DELETE
-	// com.google.storage.metadataUpdate -> OBJECT_METADATA_UPDATE
-
 	// Add our own event type here...
 	customAttributes["ce-type"] = "google.gcs"
 
 	c.Logger.Infof("Creating a notification on bucket %s", gcs.Spec.Bucket)
 	notification, err := bucket.AddNotification(ctx, &storage.Notification{
-		TopicProjectID:   gcs.Spec.GoogleCloudProject,
-		TopicID:          gcs.Status.Topic,
-		PayloadFormat:    storage.JSONPayload,
-		EventTypes:       gcs.Spec.EventTypes,
+		TopicProjectID: gcs.Spec.GoogleCloudProject,
+		TopicID:        gcs.Status.Topic,
+		PayloadFormat:  storage.JSONPayload,
+		// Translating the eventType. Allowing only one for the demo.
+		EventTypes:       []string{gcsEventTypes[gcs.Spec.EventType]},
 		ObjectNamePrefix: gcs.Spec.ObjectNamePrefix,
 		CustomAttributes: customAttributes,
 	})

@@ -70,8 +70,7 @@ type GCSSourceSpec struct {
 	Bucket string `json:"bucket"`
 
 	// EventType to subscribe to.
-	//TODO should this be required?
-	EventType string `json:"eventType,omitempty"`
+	EventType string `json:"eventType"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
 	// +optional
