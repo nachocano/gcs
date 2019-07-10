@@ -301,6 +301,12 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 		customAttributes[k] = v
 	}
 
+	//TODO translate event types
+	// com.google.storage.finalize -> OBJECT_FINALIZE
+	// com.google.storage.archive -> OBJECT_ARCHIVE
+	// com.google.storage.delete -> OBJECT_DELETE
+	// com.google.storage.metadataUpdate -> OBJECT_METADATA_UPDATE
+
 	// Add our own event type here...
 	customAttributes["ce-type"] = "google.gcs"
 
