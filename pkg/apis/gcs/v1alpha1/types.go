@@ -46,7 +46,7 @@ type GCSSourceSpec struct {
 	// GCSCredsSecret is the credential to use to create the Notification on the GCS bucket.
 	// The value of the secret entry must be a service account key in the JSON format (see
 	// https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
-	GCSCredsSecret corev1.SecretKeySelector `json:"gcsCredsSecret"`
+	GCSCredsSecret string `json:"gcsCredsSecret"`
 
 	// GcpCredsSecret is the credential to use to poll the GCP PubSub Subscription. It is not used
 	// to create or delete the Subscription, only to poll it. The value of the secret entry must be
@@ -66,11 +66,12 @@ type GCSSourceSpec struct {
 	// GoogleCloudProject is the ID of the Google Cloud Project that the PubSub Topic exists in.
 	GoogleCloudProject string `json:"googleCloudProject,omitempty"`
 
-	// Bucket to subscribe to
+	// Bucket to subscribe to.
 	Bucket string `json:"bucket"`
 
-	// EventTypes to subscribe to
-	EventTypes []string `json:"eventTypes,omitempty"`
+	// EventType to subscribe to.
+	//TODO should this be required?
+	EventType string `json:"eventType,omitempty"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
 	// +optional

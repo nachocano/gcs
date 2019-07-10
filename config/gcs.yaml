@@ -32,11 +32,8 @@ spec:
         spec:
           properties:
             gcsCredsSecret:
-              type: object
-              description: "Credential to use for creating a GCP notification. Must be a service account key in JSON format (see https://cloud.google.com/iam/docs/creating-managing-service-account-keys)."
-            gcpCredsSecret:
-              type: object
-              description: "Optional credential to use for subscribing to the GCP PubSub topic. If omitted, uses gcsCredsSecret. Must be a service account key in JSON format (see https://cloud.google.com/iam/docs/creating-managing-service-account-keys)."
+              type: string
+              description: "Name of a Secret containing a GCP service account key with permissions to create a GCP notification and subscribe to a PubSub topic. Must be at the `key.json` key in JSON format (see https://cloud.google.com/iam/docs/creating-managing-service-account-keys)."
             serviceAccountName:
               type: string
               description: "Service Account to run Receive Adapter as. If omitted, uses 'default'."
@@ -52,6 +49,9 @@ spec:
             payloadFormat:
               type: string
               description: "Optional payload format. Either NONE or JSON_API_V1. If omitted, uses JSON_API_V1."
+            eventType:
+              type: string
+              description: "Optional type of the event."
             sink:
               type: object
               description: "Where to sink the notifications to."
