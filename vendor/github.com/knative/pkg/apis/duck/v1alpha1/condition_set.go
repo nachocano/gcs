@@ -23,9 +23,9 @@ import (
 
 	"fmt"
 
-	"github.com/knative/pkg/apis"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"knative.dev/pkg/apis"
 )
 
 // Conditions is the interface for a Resource that implements the getter and
@@ -153,7 +153,7 @@ func (r ConditionSet) Manage(status interface{}) ConditionManager {
 		}
 	}
 
-	// We tried. This object is not understood by the the condition manager.
+	// We tried. This object is not understood by the condition manager.
 	//panic(fmt.Sprintf("Error converting %T into a ConditionsAccessor", status))
 	// TODO: not sure which way. using panic above means passing nil status panics the system.
 	return conditionsImpl{
@@ -212,12 +212,13 @@ func (r conditionsImpl) SetCondition(new Condition) {
 }
 
 func (r conditionsImpl) isTerminal(t ConditionType) bool {
-	for _, cond := range append(r.dependents, r.happy) {
+	for _, cond := range r.dependents {
 		if cond == t {
 			return true
 		}
 	}
-	return false
+
+	return t == r.happy
 }
 
 func (r conditionsImpl) severity(t ConditionType) ConditionSeverity {
@@ -275,7 +276,7 @@ func (r conditionsImpl) MarkUnknown(t ConditionType, reason, messageFormat strin
 			// Double check that the happy condition is also false.
 			happy := r.GetCondition(r.happy)
 			if !happy.IsFalse() {
-				r.MarkFalse(r.happy, reason, messageFormat, messageA)
+				r.MarkFalse(r.happy, reason, messageFormat, messageA...)
 			}
 			return
 		}
@@ -319,9 +320,10 @@ func (r conditionsImpl) MarkFalse(t ConditionType, reason, messageFormat string,
 // InitializeConditions updates all Conditions in the ConditionSet to Unknown
 // if not set.
 func (r conditionsImpl) InitializeConditions() {
-	for _, t := range append(r.dependents, r.happy) {
+	for _, t := range r.dependents {
 		r.InitializeCondition(t)
 	}
+	r.InitializeCondition(r.happy)
 }
 
 // InitializeCondition updates a Condition to Unknown if not set.

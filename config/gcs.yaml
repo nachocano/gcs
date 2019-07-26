@@ -39,10 +39,6 @@ spec:
                   properties:
                     ceType:
                       type: string
-                      # Defaulting is available in k8s >= 1.15, enabling the CustomResourceDefaulting feature gate
-                      # See: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#defaulting
-                      # default: "com.google.storage.finalize"
-                      # Will need a webhook for setting up defaults in importers.
                       pattern: "com.google.storage.finalize"
                     ceSchema:
                       type: string

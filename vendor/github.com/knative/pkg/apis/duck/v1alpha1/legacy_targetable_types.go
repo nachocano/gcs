@@ -20,8 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/knative/pkg/apis"
-	"github.com/knative/pkg/apis/duck"
+	"knative.dev/pkg/apis"
+	"knative.dev/pkg/apis/duck"
 )
 
 // LegacyTargetable left around until we migrate to Addressable in the
@@ -67,7 +67,7 @@ var _ duck.Populatable = (*LegacyTarget)(nil)
 var _ apis.Listable = (*LegacyTarget)(nil)
 
 // GetFullType implements duck.Implementable
-func (_ *LegacyTargetable) GetFullType() duck.Populatable {
+func (*LegacyTargetable) GetFullType() duck.Populatable {
 	return &LegacyTarget{}
 }
 
@@ -80,7 +80,7 @@ func (t *LegacyTarget) Populate() {
 }
 
 // GetListType implements apis.Listable
-func (r *LegacyTarget) GetListType() runtime.Object {
+func (*LegacyTarget) GetListType() runtime.Object {
 	return &LegacyTargetList{}
 }
 

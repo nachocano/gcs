@@ -24,6 +24,8 @@ import (
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
+	"go.uber.org/zap"
+	"knative.dev/pkg/metrics"
 )
 
 var (
@@ -102,12 +104,22 @@ func NewStatsReporter(reconciler string) (StatsReporter, error) {
 	return &reporter{reconciler: reconciler, globalCtx: ctx}, nil
 }
 
+// MustNewStatsReporter creates a new instance of StatsReporter.
+// Logs fatally if creation fails.
+func MustNewStatsReporter(reconciler string, logger *zap.SugaredLogger) StatsReporter {
+	stats, err := NewStatsReporter(reconciler)
+	if err != nil {
+		logger.Fatalw("Failed to initialize the stats reporter", zap.Error(err))
+	}
+	return stats
+}
+
 // ReportQueueDepth reports the queue depth metric
 func (r *reporter) ReportQueueDepth(v int64) error {
 	if r.globalCtx == nil {
 		return errors.New("reporter is not initialized correctly")
 	}
-	stats.Record(r.globalCtx, workQueueDepthStat.M(v))
+	metrics.Record(r.globalCtx, workQueueDepthStat.M(v))
 	return nil
 }
 
@@ -122,8 +134,8 @@ func (r *reporter) ReportReconcile(duration time.Duration, key, success string) 
 		return err
 	}
 
-	stats.Record(ctx, reconcileCountStat.M(1))
-	stats.Record(ctx, reconcileLatencyStat.M(int64(duration/time.Millisecond)))
+	metrics.Record(ctx, reconcileCountStat.M(1))
+	metrics.Record(ctx, reconcileLatencyStat.M(int64(duration/time.Millisecond)))
 	return nil
 }
 

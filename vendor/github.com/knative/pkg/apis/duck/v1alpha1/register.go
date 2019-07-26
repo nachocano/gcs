@@ -17,10 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/knative/pkg/apis/duck"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"knative.dev/pkg/apis/duck"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -47,8 +47,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		SchemeGroupVersion,
 		&KResource{},
 		(&KResource{}).GetListType(),
-		&Generational{},
-		(&Generational{}).GetListType(),
 		&AddressableType{},
 		(&AddressableType{}).GetListType(),
 		&Target{},

@@ -70,7 +70,7 @@ type GCSSourceSpec struct {
 	Bucket string `json:"bucket"`
 
 	// EventTypes to subscribe to
-	EventTypes []string `json:"eventTypes,omitempty"`
+	EventTypes GCSEventTypes `json:"eventTypes"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
 	// +optional
@@ -92,6 +92,35 @@ type GCSSourceSpec struct {
 	Sink *corev1.ObjectReference `json:"sink,omitempty"`
 }
 
+// GCSEventTypes contains the event types that can be configured by the GCSSource.
+type GCSEventTypes struct {
+	Finalize       *GCSObjectFinalize `json:"finalize,omitempty"`
+	Delete         *GCSObjectDelete   `json:"delete,omitempty"`
+	Archive        *GCSObjectArchive  `json:"archive,omitempty"`
+	MetadataUpdate *GCSMetadataUpdate `json:"metadataUpdate,omitempty"`
+}
+
+type CloudEventProperties struct {
+	Type   string `json:"ceType"`
+	Schema string `json:"ceSchema,omitempty"`
+}
+
+type GCSObjectFinalize struct {
+	CloudEventProperties `json:",inline"`
+}
+
+type GCSObjectDelete struct {
+	CloudEventProperties `json:",inline"`
+}
+
+type GCSObjectArchive struct {
+	CloudEventProperties `json:",inline"`
+}
+
+type GCSMetadataUpdate struct {
+	CloudEventProperties `json:",inline"`
+}
+
 const (
 	// GCSConditionReady has status True when the GCSSource is ready to send events.
 	GCSConditionReady = duckv1alpha1.ConditionReady
@@ -104,6 +133,15 @@ const (
 
 	// GCSReady has status True when GCS has been configured properly to send Notification events
 	GCSReady duckv1alpha1.ConditionType = "GCSReady"
+)
+
+var (
+	GCSEventTypesMapping = map[string]string{
+		"com.google.storage.finalize":       "OBJECT_FINALIZE",
+		"com.google.storage.archive":        "OBJECT_ARCHIVE",
+		"com.google.storage.delete":         "OBJECT_DELETE",
+		"com.google.storage.metadataUpdate": "OBJECT_METADATA_UPDATE",
+	}
 )
 
 var gcsSourceCondSet = duckv1alpha1.NewLivingConditionSet(

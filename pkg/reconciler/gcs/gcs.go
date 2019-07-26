@@ -309,7 +309,7 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 		TopicProjectID:   gcs.Spec.GoogleCloudProject,
 		TopicID:          gcs.Status.Topic,
 		PayloadFormat:    storage.JSONPayload,
-		EventTypes:       gcs.Spec.EventTypes,
+		EventTypes:       c.getEventTypes(&gcs.Spec.EventTypes),
 		ObjectNamePrefix: gcs.Spec.ObjectNamePrefix,
 		CustomAttributes: customAttributes,
 	})
@@ -321,6 +321,23 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 	c.Logger.Infof("Created Notification %q", notification.ID)
 
 	return notification, nil
+}
+
+func (c *Reconciler) getEventTypes(gcsTypes *v1alpha1.GCSEventTypes) []string {
+	eventTypes := make([]string, 0)
+	if gcsTypes.Finalize != nil {
+		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Finalize.Type])
+	}
+	if gcsTypes.Archive != nil {
+		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Archive.Type])
+	}
+	if gcsTypes.Delete != nil {
+		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Delete.Type])
+	}
+	if gcsTypes.MetadataUpdate != nil {
+		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.MetadataUpdate.Type])
+	}
+	return eventTypes
 }
 
 func (c *Reconciler) reconcileTopic(csr *v1alpha1.GCSSource) error {
