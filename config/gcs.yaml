@@ -31,6 +31,57 @@ spec:
           type: object
         spec:
           properties:
+            eventTypes:
+              type: object
+              properties:
+                finalize:
+                  type: object
+                  properties:
+                    ceType:
+                      type: string
+                      # Defaulting is available in k8s >= 1.15, enabling the CustomResourceDefaulting feature gate
+                      # See: https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#defaulting
+                      # default: "com.google.storage.finalize"
+                      # Will need a webhook for setting up defaults in importers.
+                      pattern: "com.google.storage.finalize"
+                    ceSchema:
+                      type: string
+                      pattern: "http://finalize-schema"
+                  required:
+                    - ceType
+                delete:
+                  type: object
+                  properties:
+                    ceType:
+                      type: string
+                      pattern: "com.google.storage.delete"
+                    ceSchema:
+                      type: string
+                      pattern: "http://delete-schema"
+                  required:
+                    - ceType
+                archive:
+                  type: object
+                  properties:
+                    ceType:
+                      type: string
+                      pattern: "com.google.storage.archive"
+                    ceSchema:
+                      type: string
+                      pattern: "http://archive-schema"
+                  required:
+                    - ceType
+                metadataUpdate:
+                  type: object
+                  properties:
+                    ceType:
+                      type: string
+                      pattern: "com.google.storage.metadataUpdate"
+                    ceSchema:
+                      type: string
+                      pattern: "http://metadata-update-schema"
+                  required:
+                    - ceType
             gcsCredsSecret:
               type: object
               description: "Credential to use for creating a GCP notification. Must be a service account key in JSON format (see https://cloud.google.com/iam/docs/creating-managing-service-account-keys)."
@@ -60,3 +111,4 @@ spec:
           - googleCloudProject
           - bucket
           - sink
+          - eventTypes
