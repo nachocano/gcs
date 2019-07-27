@@ -18,11 +18,15 @@ package v1alpha1
 
 import (
 	"github.com/knative/pkg/apis/duck"
-	duckv1alpha1 "github.com/knative/pkg/apis/duck/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"knative.dev/pkg/apis"
+	duckv1alpha1 "knative.dev/pkg/apis/duck/v1alpha1"
+	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
+	"knative.dev/pkg/kmeta"
+	"knative.dev/pkg/webhook"
 )
 
 // +genclient
@@ -39,7 +43,17 @@ type GCSSource struct {
 }
 
 // Check that GCSSource implements the Conditions duck type.
-var _ = duck.VerifyType(&GCSSource{}, &duckv1alpha1.Conditions{})
+var (
+	// Check that Channel can be validated, can be defaulted, and has immutable fields.
+	_ apis.Validatable   = (*GCSSource)(nil)
+	_ apis.Defaultable   = (*GCSSource)(nil)
+	_ apis.Immutable     = (*GCSSource)(nil)
+	_ runtime.Object     = (*GCSSource)(nil)
+	_ webhook.GenericCRD = (*GCSSource)(nil)
+
+	// Check that we can create OwnerReferences to a Channel.
+	_ kmeta.OwnerRefable = (*GCSSource)(nil)
+)
 
 // GCSSourceSpec is the spec for a GCSSource resource
 type GCSSourceSpec struct {
@@ -70,7 +84,7 @@ type GCSSourceSpec struct {
 	Bucket string `json:"bucket"`
 
 	// EventTypes to subscribe to
-	EventTypes GCSEventTypes `json:"eventTypes"`
+	EventTypes *GCSEventTypes `json:"eventTypes,omitempty"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
 	// +optional
@@ -101,8 +115,8 @@ type GCSEventTypes struct {
 }
 
 type CloudEventProperties struct {
-	Type   string `json:"ceType"`
-	Schema string `json:"ceSchema,omitempty"`
+	Type string `json:"ceType"`
+	// Schema string `json:"ceSchema,omitempty"`
 }
 
 type GCSObjectFinalize struct {
@@ -135,12 +149,19 @@ const (
 	GCSReady duckv1alpha1.ConditionType = "GCSReady"
 )
 
+const (
+	gCSFinalize   = "com.google.storage.finalize"
+	gCSArchive    = "com.google.storage.archive"
+	gCSDelete     = "com.google.storage.delete"
+	gCSMetaUpdate = "com.google.storage.metadataUpdate"
+)
+
 var (
 	GCSEventTypesMapping = map[string]string{
-		"com.google.storage.finalize":       "OBJECT_FINALIZE",
-		"com.google.storage.archive":        "OBJECT_ARCHIVE",
-		"com.google.storage.delete":         "OBJECT_DELETE",
-		"com.google.storage.metadataUpdate": "OBJECT_METADATA_UPDATE",
+		gCSFinalize:   "OBJECT_FINALIZE",
+		gCSArchive:    "OBJECT_ARCHIVE",
+		gCSDelete:     "OBJECT_DELETE",
+		gCSMetaUpdate: "OBJECT_METADATA_UPDATE",
 	}
 )
 
@@ -151,11 +172,10 @@ var gcsSourceCondSet = duckv1alpha1.NewLivingConditionSet(
 
 // GCSSourceStatus is the status for a GCSSource resource
 type GCSSourceStatus struct {
-	// Conditions holds the state of a source at a point in time.
-	// +optional
-	// +patchMergeKey=type
-	// +patchStrategy=merge
-	Conditions duckv1alpha1.Conditions `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+	// inherits duck/v1beta1 Status, which currently provides:
+	// * ObservedGeneration - the 'Generation' of the Service that was last processed by the controller.
+	// * Conditions - the latest available observations of a resource's current state.
+	duckv1beta1.Status `json:",inline"`
 
 	// TODO: add conditions and other stuff here...
 	// NotificationID is the ID that GCS identifies this notification as.
@@ -227,4 +247,14 @@ type GCSSourceList struct {
 	metav1.ListMeta `json:"metadata"`
 
 	Items []GCSSource `json:"items"`
+}
+
+// GetFullType implements duck.Implementable
+func (s *GCSSource) GetFullType() duck.Populatable {
+	return &GCSSource{}
+}
+
+// Populate implements duck.Populatable
+func (c *GCSSource) Populate() {
+	//
 }

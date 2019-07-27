@@ -1058,6 +1058,7 @@
   packages = [
     "apis",
     "apis/duck",
+    "apis/duck/v1alpha1",
     "apis/duck/v1beta1",
     "changeset",
     "kmeta",
@@ -1066,6 +1067,7 @@
     "logging/logkey",
     "metrics",
     "metrics/metricskey",
+    "webhook",
   ]
   pruneopts = "T"
   revision = "master"
@@ -1090,7 +1092,6 @@
     "github.com/knative/eventing-sources/pkg/client/informers/externalversions/sources/v1alpha1",
     "github.com/knative/pkg/apis",
     "github.com/knative/pkg/apis/duck",
-    "github.com/knative/pkg/apis/duck/v1alpha1",
     "github.com/knative/pkg/cloudevents",
     "github.com/knative/pkg/controller",
     "github.com/knative/pkg/kmeta",
@@ -1131,6 +1132,11 @@
     "k8s.io/code-generator/cmd/defaulter-gen",
     "k8s.io/code-generator/cmd/informer-gen",
     "k8s.io/code-generator/cmd/lister-gen",
+    "knative.dev/pkg/apis",
+    "knative.dev/pkg/apis/duck/v1alpha1",
+    "knative.dev/pkg/apis/duck/v1beta1",
+    "knative.dev/pkg/kmeta",
+    "knative.dev/pkg/webhook",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

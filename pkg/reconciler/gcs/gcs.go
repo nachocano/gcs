@@ -111,11 +111,7 @@ func NewController(
 		pubsubClient:       pubsubclientset,
 		Logger:             logger,
 	}
-	statsExporter, err := controller.NewStatsReporter(controllerAgentName)
-	if nil != err {
-		logger.Fatalf("Couldn't create stats exporter: %s", err)
-	}
-	impl := controller.NewImpl(r, logger, "GCSSources", statsExporter)
+	impl := controller.NewImpl(r, logger, "GCSSources")
 
 	logger.Info("Setting up event handlers")
 
@@ -309,7 +305,7 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 		TopicProjectID:   gcs.Spec.GoogleCloudProject,
 		TopicID:          gcs.Status.Topic,
 		PayloadFormat:    storage.JSONPayload,
-		EventTypes:       c.getEventTypes(&gcs.Spec.EventTypes),
+		EventTypes:       c.getEventTypes(gcs.Spec.EventTypes),
 		ObjectNamePrefix: gcs.Spec.ObjectNamePrefix,
 		CustomAttributes: customAttributes,
 	})

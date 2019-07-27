@@ -40,9 +40,6 @@ spec:
                     ceType:
                       type: string
                       pattern: "com.google.storage.finalize"
-                    ceSchema:
-                      type: string
-                      pattern: "http://finalize-schema"
                   required:
                     - ceType
                 delete:
@@ -51,9 +48,6 @@ spec:
                     ceType:
                       type: string
                       pattern: "com.google.storage.delete"
-                    ceSchema:
-                      type: string
-                      pattern: "http://delete-schema"
                   required:
                     - ceType
                 archive:
@@ -62,9 +56,6 @@ spec:
                     ceType:
                       type: string
                       pattern: "com.google.storage.archive"
-                    ceSchema:
-                      type: string
-                      pattern: "http://archive-schema"
                   required:
                     - ceType
                 metadataUpdate:
@@ -73,9 +64,6 @@ spec:
                     ceType:
                       type: string
                       pattern: "com.google.storage.metadataUpdate"
-                    ceSchema:
-                      type: string
-                      pattern: "http://metadata-update-schema"
                   required:
                     - ceType
             gcsCredsSecret:
@@ -107,4 +95,3 @@ spec:
           - googleCloudProject
           - bucket
           - sink
-          - eventTypes

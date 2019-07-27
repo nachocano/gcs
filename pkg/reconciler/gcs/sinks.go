@@ -18,23 +18,13 @@ package gcs
 
 import (
 	"fmt"
-
 	duckapis "github.com/knative/pkg/apis"
 	"github.com/knative/pkg/apis/duck"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
+	duckv1alpha1 "knative.dev/pkg/apis/duck/v1alpha1"
 )
-
-// v1beta1AddressableType is copied from knative/pkg. Hack used in the demo.
-// Couldn't make dependencies work to get the real one.
-type v1beta1AddressableType struct {
-	Status struct {
-		Address *struct {
-			URL *string `json:"url,omitempty"`
-		}
-	}
-}
 
 // GetSinkURI retrieves the sink URI from the object referenced by the given
 // ObjectReference.
@@ -47,7 +37,7 @@ func GetSinkURI(dc dynamic.Interface, sink *corev1.ObjectReference, namespace st
 	if err != nil {
 		return "", err
 	}
-	t := v1beta1AddressableType{}
+	t := duckv1alpha1.AddressableType{}
 	err = duck.FromUnstructured(obj, &t)
 	if err != nil {
 		return "", fmt.Errorf("failed to deserialize sink: %v", err)
@@ -57,11 +47,15 @@ func GetSinkURI(dc dynamic.Interface, sink *corev1.ObjectReference, namespace st
 		return "", fmt.Errorf("sink does not contain address")
 	}
 
-	if t.Status.Address.URL == nil || *t.Status.Address.URL == "" {
-		return "", fmt.Errorf("sink contains an empty URL")
+	if t.Status.Address == nil {
+		return "", fmt.Errorf("sink %s does not contain address", sink.Name)
 	}
 
-	return *t.Status.Address.URL, nil
+	url := t.Status.Address.GetURL()
+	if url.Host == "" {
+		return "", fmt.Errorf("sink %s contains an empty hostname", sink.Name)
+	}
+	return url.String(), nil
 }
 
 func fetchObjectReference(dc dynamic.Interface, ref *corev1.ObjectReference, namespace string) (duck.Marshalable, error) {

@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Knative Authors
+Copyright 2019 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,28 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package v1alpha1
 
 import (
 	"context"
-	"log"
-	"net/http"
-
-	"github.com/knative/pkg/cloudevents"
+	"knative.dev/pkg/apis"
 )
 
-func myFunc(ctx context.Context, e string) (string, cloudevents.LoadContext, error) {
-	ec := cloudevents.FromContext(ctx)
-	log.Printf("Received Context: %+v", ec)
-	log.Printf("Received event as: %q", e)
-	return e, ec, nil
+func (gcs *GCSSource) Validate(ctx context.Context) *apis.FieldError {
+	return gcs.Spec.Validate(ctx).ViaField("spec")
 }
 
-func main() {
-	m := cloudevents.NewMux()
-	err := m.Handle("GoogleCloudScheduler", myFunc)
-	if err != nil {
-		log.Fatalf("Failed to create handler %s", err)
-	}
-	http.ListenAndServe(":8080", m)
+func (s *GCSSourceSpec) Validate(ctx context.Context) *apis.FieldError {
+	var errs *apis.FieldError
+	// TODO validate
+	return errs
+}
+
+func (gcs *GCSSource) CheckImmutableFields(ctx context.Context, og apis.Immutable) *apis.FieldError {
+	return nil
 }
