@@ -34,10 +34,10 @@ import (
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
 
-	pubsubsourcev1alpha1 "github.com/knative/eventing-contrib/pkg/apis/sources/v1alpha1"
+	pubsubsourcev1alpha1 "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/apis/sources/v1alpha1"
 
-	pubsubsourceclientset "github.com/knative/eventing-contrib/pkg/client/clientset/versioned"
-	pubsubsourceinformers "github.com/knative/eventing-contrib/pkg/client/informers/externalversions/sources/v1alpha1"
+	pubsubsourceclientset "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/clientset/versioned"
+	pubsubsourceinformers "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions/sources/v1alpha1"
 	"github.com/vaikas-google/gcs/pkg/apis/gcs/v1alpha1"
 	clientset "github.com/vaikas-google/gcs/pkg/client/clientset/versioned"
 	gcssourcescheme "github.com/vaikas-google/gcs/pkg/client/clientset/versioned/scheme"
