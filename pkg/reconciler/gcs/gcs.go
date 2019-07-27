@@ -47,7 +47,7 @@ import (
 	"google.golang.org/grpc/codes"
 	gstatus "google.golang.org/grpc/status"
 	"k8s.io/apimachinery/pkg/api/equality"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/dynamic"
 )
@@ -254,8 +254,8 @@ func (c *Reconciler) reconcileGCSSource(ctx context.Context, csr *v1alpha1.GCSSo
 }
 
 func (c *Reconciler) reconcilePubSub(csr *v1alpha1.GCSSource) (*pubsubsourcev1alpha1.GcpPubSubSource, error) {
-	pubsubClient := c.pubsubClient.Sources().GcpPubSubSources(csr.Namespace)
-	existing, err := pubsubClient.Get(csr.Name, v1.GetOptions{})
+	pubsubClient := c.pubsubClient.SourcesV1alpha1().GcpPubSubSources(csr.Namespace)
+	existing, err := pubsubClient.Get(csr.Name, metav1.GetOptions{})
 	if err == nil {
 		// TODO: Handle any updates...
 		c.Logger.Infof("Found existing pubsubsource: %+v", existing)
