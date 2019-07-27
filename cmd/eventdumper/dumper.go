@@ -42,7 +42,7 @@ func myFunc(ctx context.Context, msg *pubsub.Message) error {
 	// all we care about for this example and the entire context is toooooo much...
 	ec := cloudevents.FromContext(ctx)
 	if ec != nil {
-		log.Printf("Received Cloud Event Context as: %+v", *ec)
+		log.Printf("Received Cloud Event Context as: %+v", ec)
 	} else {
 		log.Printf("No Cloud Event Context found")
 	}

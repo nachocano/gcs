@@ -30,8 +30,8 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 
-	pubsubsourceclientset "github.com/knative/eventing-sources/pkg/client/clientset/versioned"
-	pubsubsourceinformers "github.com/knative/eventing-sources/pkg/client/informers/externalversions"
+	pubsubsourceclientset "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/clientset/versioned"
+	pubsubsourceinformers "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions"
 	clientset "github.com/vaikas-google/gcs/pkg/client/clientset/versioned"
 	informers "github.com/vaikas-google/gcs/pkg/client/informers/externalversions"
 	"github.com/vaikas-google/gcs/pkg/reconciler/gcs"
