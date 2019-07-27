@@ -20,7 +20,7 @@ import (
 	"github.com/knative/pkg/kmeta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pubsubv1alpha1 "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
+	pubsubv1alpha1 "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/apis/sources/v1alpha1"
 	"github.com/vaikas-google/gcs/pkg/apis/gcs/v1alpha1"
 )
 
