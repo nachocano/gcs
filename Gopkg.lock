@@ -294,31 +294,30 @@
   revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
 
 [[projects]]
-  digest = "1:229d07d0927c088493be5870d8a58b62621dc3c4dc8edf89e4edd8de11af7bec"
-  name = "github.com/knative/eventing-sources"
+  digest = "1:db29d5e5b71b4f104f7c782e31bd1259a5665bf247ee48089d76b0e65585b2eb"
+  name = "github.com/knative/eventing-contrib"
   packages = [
-    "pkg/apis/sources/v1alpha1",
-    "pkg/client/clientset/versioned",
-    "pkg/client/clientset/versioned/scheme",
-    "pkg/client/clientset/versioned/typed/sources/v1alpha1",
-    "pkg/client/informers/externalversions",
-    "pkg/client/informers/externalversions/internalinterfaces",
-    "pkg/client/informers/externalversions/sources",
-    "pkg/client/informers/externalversions/sources/v1alpha1",
-    "pkg/client/listers/sources/v1alpha1",
+    "contrib/gcppubsub/pkg/apis/sources/v1alpha1",
+    "contrib/gcppubsub/pkg/client/clientset/versioned",
+    "contrib/gcppubsub/pkg/client/clientset/versioned/scheme",
+    "contrib/gcppubsub/pkg/client/clientset/versioned/typed/sources/v1alpha1",
+    "contrib/gcppubsub/pkg/client/informers/externalversions",
+    "contrib/gcppubsub/pkg/client/informers/externalversions/internalinterfaces",
+    "contrib/gcppubsub/pkg/client/informers/externalversions/sources",
+    "contrib/gcppubsub/pkg/client/informers/externalversions/sources/v1alpha1",
+    "contrib/gcppubsub/pkg/client/listers/sources/v1alpha1",
   ]
   pruneopts = "NUT"
-  revision = "9741f15a707d622f385ef3af7cb5e1141a70ddf2"
-  version = "v0.2.1"
+  revision = "eca6ce938368fc93bc3eb84537ff78b11c1b56f8"
+  version = "v0.7.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:f762a3f31c01dac8009bbaa9fbb3d29e6a2635811fe5155d7faa0e586ffe271d"
+  digest = "1:dd7c68dcf44e8757cc064dff6042abac6e9d9d6532036f9bb76b1510d44d0ad9"
   name = "github.com/knative/pkg"
   packages = [
     "apis",
     "apis/duck",
-    "apis/duck/v1alpha1",
     "cloudevents",
     "controller",
     "kmeta",
@@ -845,7 +844,7 @@
   ]
   pruneopts = "NUT"
   revision = "01f179d85dbce0f2e0e4351a92394b38694b7cae"
-  version = "kubernetes-1.12.6"
+  version = "kubernetes-1.12.9"
 
 [[projects]]
   digest = "1:3ca7df0bbf551a81b152726b5e939a757c193d92999e8cc68059f565b1759151"
@@ -1077,7 +1076,8 @@
   name = "sigs.k8s.io/controller-runtime"
   packages = ["pkg/runtime/scheme"]
   pruneopts = "NUT"
-  revision = "0f0740db56812f732d90ff7df3520a291a9f04c9"
+  revision = "f6f0bc9611363b43664d08fb097ab13243ef621d"
+  version = "v0.1.9"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -1086,10 +1086,10 @@
     "cloud.google.com/go/pubsub",
     "cloud.google.com/go/storage",
     "github.com/google/uuid",
-    "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1",
-    "github.com/knative/eventing-sources/pkg/client/clientset/versioned",
-    "github.com/knative/eventing-sources/pkg/client/informers/externalversions",
-    "github.com/knative/eventing-sources/pkg/client/informers/externalversions/sources/v1alpha1",
+    "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/apis/sources/v1alpha1",
+    "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/clientset/versioned",
+    "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions",
+    "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions/sources/v1alpha1",
     "github.com/knative/pkg/apis",
     "github.com/knative/pkg/apis/duck",
     "github.com/knative/pkg/cloudevents",
