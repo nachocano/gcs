@@ -1,6 +1,5 @@
 /*
-Copyright 2019 The Kubernetes Authors.
-
+Copyright 2019 The Knative Authors
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -17,47 +16,61 @@ limitations under the License.
 package main
 
 import (
-	"context"
 	"flag"
-	"github.com/knative/pkg/logging"
-	"github.com/knative/pkg/signals"
-	"github.com/knative/pkg/system"
-	"github.com/knative/pkg/webhook"
 	"github.com/vaikas-google/gcs/pkg/apis/gcs/v1alpha1"
+	"log"
+
+	"github.com/knative/eventing/pkg/logconfig"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-)
-
-var (
-	masterURL  = flag.String("kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
-	kubeconfig = flag.String("master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
-	// TODO(mattmoor): Move into a configmap and use the watcher.
-	raImage = flag.String("raimage", "", "The name of the Receive Adapter image, see //cmd/receivedapter")
+	"k8s.io/client-go/rest"
+	"knative.dev/pkg/configmap"
+	"knative.dev/pkg/logging"
+	"knative.dev/pkg/logging/logkey"
+	"knative.dev/pkg/signals"
+	"knative.dev/pkg/system"
+	"knative.dev/pkg/webhook"
 )
 
 func main() {
 	flag.Parse()
+	// Read the logging config and setup a logger.
+	cm, err := configmap.Load("/etc/config-logging")
+	if err != nil {
+		log.Fatalf("Error loading logging configuration: %v", err)
+	}
+	config, err := logging.NewConfigFromMap(cm)
+	if err != nil {
+		log.Fatalf("Error parsing logging configuration: %v", err)
+	}
+	logger, atomicLevel := logging.NewLoggerFromConfig(config, logconfig.WebhookName())
+	defer logger.Sync()
+	logger = logger.With(zap.String(logkey.ControllerType, logconfig.WebhookName()))
+
+	logger.Infow("Starting the GCS Source Webhook")
 
 	// set up signals so we handle the first shutdown signal gracefully
 	stopCh := signals.SetupSignalHandler()
 
-	logger := logging.FromContext(context.TODO()).Named("webhook")
-
-	cfg, err := clientcmd.BuildConfigFromFlags(*masterURL, *kubeconfig)
+	clusterConfig, err := rest.InClusterConfig()
 	if err != nil {
-		logger.Fatalf("Error building kubeconfig: %s", err.Error())
+		logger.Fatalw("Failed to get in cluster config", zap.Error(err))
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(cfg)
+	kubeClient, err := kubernetes.NewForConfig(clusterConfig)
 	if err != nil {
-		logger.Fatalf("Error building kubernetes clientset: %s", err.Error())
+		logger.Fatalw("Failed to get the client set", zap.Error(err))
 	}
+
+	// Watch the logging config map and dynamically update logging levels.
+	configMapWatcher := configmap.NewInformedWatcher(kubeClient, system.Namespace())
+
+	configMapWatcher.Watch(logconfig.ConfigMapName(), logging.UpdateLevelFromConfigMap(logger, atomicLevel, logconfig.WebhookName()))
 
 	options := webhook.ControllerOptions{
-		ServiceName:    "gcssource-webhook",
-		DeploymentName: "gcssource-webhook",
+		ServiceName:    logconfig.WebhookName(),
+		DeploymentName: logconfig.WebhookName(),
 		Namespace:      system.Namespace(),
 		Port:           8443,
 		SecretName:     "gcssource-webhook-certs",
@@ -67,16 +80,16 @@ func main() {
 		Client:  kubeClient,
 		Options: options,
 		Handlers: map[schema.GroupVersionKind]webhook.GenericCRD{
+			// For group messaging.knative.dev
 			v1alpha1.SchemeGroupVersion.WithKind("GCSSource"): &v1alpha1.GCSSource{},
 		},
 		Logger: logger,
 	}
 	if err != nil {
-		logger.Fatalw("Failed to create the Kafka admission controller", zap.Error(err))
+		logger.Fatalw("Failed to create the GCS Source admission controller", zap.Error(err))
 	}
 	if err = controller.Run(stopCh); err != nil {
 		logger.Errorw("controller.Run() failed", zap.Error(err))
 	}
-
-	<-stopCh
+	logger.Infow("GCS Source webhook stopping")
 }

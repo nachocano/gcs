@@ -1,0 +1,38 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: gcssource-controller
+  namespace: gcssource-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gcssource-controller
+    spec:
+      serviceAccountName: gcssource-controller
+      containers:
+      - name: gcssource-controller
+        image: github.com/vaikas-google/gcs/cmd/controller
+        terminationMessagePolicy: FallbackToLogsOnError
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CONFIG_LOGGING_NAME
+          value: config-logging
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+        - name: config-logging
+          mountPath: /etc/config-logging
+      volumes:
+      - name: google-cloud-key
+        secret:
+          secretName: gcs-source-key
+      - name: config-logging
+        configMap:
+          name: config-logging
