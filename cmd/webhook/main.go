@@ -80,7 +80,7 @@ func main() {
 		Client:  kubeClient,
 		Options: options,
 		Handlers: map[schema.GroupVersionKind]webhook.GenericCRD{
-			// For group messaging.knative.dev
+			// For group sources.aikas.org
 			v1alpha1.SchemeGroupVersion.WithKind("GCSSource"): &v1alpha1.GCSSource{},
 		},
 		Logger: logger,
