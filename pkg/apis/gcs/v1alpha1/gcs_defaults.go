@@ -36,7 +36,7 @@ func (s *GCSSourceSpec) SetDefaults(ctx context.Context) {
 		s.EventTypes.Finalize.Type = gCSFinalize
 	}
 	if s.EventTypes.Archive != nil {
-		s.EventTypes.Finalize.Type = gCSArchive
+		s.EventTypes.Archive.Type = gCSArchive
 	}
 	if s.EventTypes.Delete != nil {
 		s.EventTypes.Delete.Type = gCSDelete
