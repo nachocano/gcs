@@ -74,7 +74,7 @@ func main() {
 		Namespace:      system.Namespace(),
 		Port:           8443,
 		SecretName:     "gcssource-webhook-certs",
-		WebhookName:    "webhook.sources.aikas.org",
+		WebhookName:    "gcssource-webhook.sources.aikas.org",
 	}
 	controller := webhook.AdmissionController{
 		Client:  kubeClient,
