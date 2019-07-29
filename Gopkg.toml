@@ -55,13 +55,3 @@ required = [
 [[override]]
   name="github.com/knative/eventing-contrib"
   version = "0.7.1"
-
-# 0.21.0 introduces a breaking change. Need to solve it in order to import 0.22.0.
-# https://github.com/census-instrumentation/opencensus-go/releases
-#[[override]]
-#  name = "go.opencensus.io"
-#  version = "0.20.0"
-#
-#[[override]]
-#  name = "contrib.go.opencensus.io/exporter/stackdriver"
-#  version = "v0.12.2"
