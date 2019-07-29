@@ -115,8 +115,8 @@ type GCSEventTypes struct {
 }
 
 type CloudEventProperties struct {
-	Type string `json:"ceType"`
-	// Schema string `json:"ceSchema,omitempty"`
+	Type   string `json:"ceType"`
+	Schema string `json:"ceSchema"`
 }
 
 type GCSObjectFinalize struct {
@@ -150,18 +150,23 @@ const (
 )
 
 const (
-	gCSFinalize   = "com.google.storage.finalize"
-	gCSArchive    = "com.google.storage.archive"
-	gCSDelete     = "com.google.storage.delete"
-	gCSMetaUpdate = "com.google.storage.metadataUpdate"
+	gCSFinalizeType   = "com.google.storage.finalize"
+	gCSArchiveType    = "com.google.storage.archive"
+	gCSDeleteType     = "com.google.storage.delete"
+	gCSMetaUpdateType = "com.google.storage.metadataUpdate"
+
+	gCSFinalizeSchema   = "finalize-schema"
+	gCSArchiveSchema    = "archive-schema"
+	gCSDeleteSchema     = "delete-schema"
+	gCSMetaUpdateSchema = "metadataUpdate-schema"
 )
 
 var (
 	GCSEventTypesMapping = map[string]string{
-		gCSFinalize:   "OBJECT_FINALIZE",
-		gCSArchive:    "OBJECT_ARCHIVE",
-		gCSDelete:     "OBJECT_DELETE",
-		gCSMetaUpdate: "OBJECT_METADATA_UPDATE",
+		gCSFinalizeType:   "OBJECT_FINALIZE",
+		gCSArchiveType:    "OBJECT_ARCHIVE",
+		gCSDeleteType:     "OBJECT_DELETE",
+		gCSMetaUpdateType: "OBJECT_METADATA_UPDATE",
 	}
 )
 

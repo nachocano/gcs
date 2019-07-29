@@ -294,6 +294,14 @@
   revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
 
 [[projects]]
+  digest = "1:699f2f6a73ca838a147a824988b8c2106a2cc8f4a9a21166723b8c337fec2e18"
+  name = "github.com/knative/eventing"
+  packages = ["pkg/logconfig"]
+  pruneopts = "NUT"
+  revision = "7df0cc56c28d58223ff25d5ddfb487fa8c29a004"
+  version = "v0.7.1"
+
+[[projects]]
   digest = "1:db29d5e5b71b4f104f7c782e31bd1259a5665bf247ee48089d76b0e65585b2eb"
   name = "github.com/knative/eventing-contrib"
   packages = [
@@ -313,7 +321,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:dd7c68dcf44e8757cc064dff6042abac6e9d9d6532036f9bb76b1510d44d0ad9"
+  digest = "1:843f0f6c5c4005a66780a87e37b22679ad56acd80ac444ddc570258585b30b45"
   name = "github.com/knative/pkg"
   packages = [
     "apis",
@@ -324,8 +332,6 @@
     "logging",
     "logging/logkey",
     "signals",
-    "system",
-    "webhook",
   ]
   pruneopts = "NUT"
   revision = "fe4877abb6e40f2419d62e58e90138528f9aade9"
@@ -1064,12 +1070,15 @@
     "apis/duck/v1alpha1",
     "apis/duck/v1beta1",
     "changeset",
+    "configmap",
     "kmeta",
     "kmp",
     "logging",
     "logging/logkey",
     "metrics",
     "metrics/metricskey",
+    "signals",
+    "system",
     "webhook",
   ]
   pruneopts = "T"
@@ -1094,6 +1103,7 @@
     "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/clientset/versioned",
     "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions",
     "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions/sources/v1alpha1",
+    "github.com/knative/eventing/pkg/logconfig",
     "github.com/knative/pkg/apis",
     "github.com/knative/pkg/apis/duck",
     "github.com/knative/pkg/cloudevents",
@@ -1102,8 +1112,6 @@
     "github.com/knative/pkg/logging",
     "github.com/knative/pkg/logging/logkey",
     "github.com/knative/pkg/signals",
-    "github.com/knative/pkg/system",
-    "github.com/knative/pkg/webhook",
     "go.uber.org/zap",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/status",
@@ -1139,7 +1147,12 @@
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck/v1alpha1",
     "knative.dev/pkg/apis/duck/v1beta1",
+    "knative.dev/pkg/configmap",
     "knative.dev/pkg/kmeta",
+    "knative.dev/pkg/logging",
+    "knative.dev/pkg/logging/logkey",
+    "knative.dev/pkg/signals",
+    "knative.dev/pkg/system",
     "knative.dev/pkg/webhook",
   ]
   solver-name = "gps-cdcl"

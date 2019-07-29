@@ -40,32 +40,36 @@ spec:
                     ceType:
                       type: string
                       pattern: "com.google.storage.finalize"
-                  required:
-                    - ceType
+                    ceSchema:
+                      type: string
+                      pattern: "finalize-schema"
                 delete:
                   type: object
                   properties:
                     ceType:
                       type: string
                       pattern: "com.google.storage.delete"
-                  required:
-                    - ceType
+                    ceSchema:
+                      type: string
+                      pattern: "delete-schema"
                 archive:
                   type: object
                   properties:
                     ceType:
                       type: string
                       pattern: "com.google.storage.archive"
-                  required:
-                    - ceType
+                    ceSchema:
+                      type: string
+                      pattern: "archive-schema"
                 metadataUpdate:
                   type: object
                   properties:
                     ceType:
                       type: string
                       pattern: "com.google.storage.metadataUpdate"
-                  required:
-                    - ceType
+                    ceSchema:
+                      type: string
+                      pattern: "metadataUpdate-schema"
             gcsCredsSecret:
               type: object
               description: "Credential to use for creating a GCP notification. Must be a service account key in JSON format (see https://cloud.google.com/iam/docs/creating-managing-service-account-keys)."

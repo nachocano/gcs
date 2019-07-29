@@ -27,10 +27,52 @@ func (gcs *GCSSource) Validate(ctx context.Context) *apis.FieldError {
 
 func (s *GCSSourceSpec) Validate(ctx context.Context) *apis.FieldError {
 	var errs *apis.FieldError
-	// TODO validate
+
+	if s.EventTypes == nil {
+		errs = errs.Also(apis.ErrMissingField("eventTypes"))
+		return errs
+	}
+
+	if s.EventTypes.Finalize != nil {
+		if ce := isValidCloudEvent(s.EventTypes.Finalize.Type, s.EventTypes.Finalize.Schema, gCSFinalizeType, gCSFinalizeSchema); ce != nil {
+			errs = errs.Also(ce.ViaField("eventTypes.finalize"))
+		}
+	}
+
+	if s.EventTypes.Archive != nil {
+		if ce := isValidCloudEvent(s.EventTypes.Archive.Type, s.EventTypes.Archive.Schema, gCSArchiveType, gCSArchiveSchema); ce != nil {
+			errs = errs.Also(ce.ViaField("eventTypes.archive"))
+		}
+	}
+
+	if s.EventTypes.Delete != nil {
+		if ce := isValidCloudEvent(s.EventTypes.Delete.Type, s.EventTypes.Delete.Schema, gCSDeleteType, gCSDeleteSchema); ce != nil {
+			errs = errs.Also(ce.ViaField("eventTypes.delete"))
+		}
+	}
+
+	if s.EventTypes.MetadataUpdate != nil {
+		if ce := isValidCloudEvent(s.EventTypes.MetadataUpdate.Type, s.EventTypes.MetadataUpdate.Schema, gCSMetaUpdateType, gCSMetaUpdateSchema); ce != nil {
+			errs = errs.Also(ce.ViaField("eventTypes.metadataUpdate"))
+		}
+	}
+
 	return errs
 }
 
 func (gcs *GCSSource) CheckImmutableFields(ctx context.Context, og apis.Immutable) *apis.FieldError {
 	return nil
+}
+
+func isValidCloudEvent(ceType, ceSchema, defaultType, defaultSchema string) *apis.FieldError {
+	var errs *apis.FieldError
+	if ceType != defaultType {
+		fe := apis.ErrInvalidValue(ceType, "ceType")
+		errs = errs.Also(fe)
+	}
+	if ceSchema != defaultSchema {
+		fe := apis.ErrInvalidValue(ceSchema, "ceSchema")
+		errs = errs.Also(fe)
+	}
+	return errs
 }
