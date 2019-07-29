@@ -662,7 +662,8 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:870823dd85a84228c78de88838fbe9255cae24037d47337ece47dcc76976946f"
+  branch = "master"
+  digest = "1:31344167586516473f16ed75d54425eddab8229340424ec8b96f990b3cbf189f"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api",
@@ -678,13 +679,14 @@
     "googleapis/pubsub/v1",
     "googleapis/rpc/code",
     "googleapis/rpc/status",
+    "googleapis/type/expr",
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "357c62f0e4bbba7e6cc403ae09edcf3e2b9028fe"
+  revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
-  digest = "1:0534aaeb340c82db3f6805a48eebb690c2f043edc47dd734dcef770528e8b3f0"
+  digest = "1:c1a72c55bf103cb32a0c55ef3a15809178b314e411d7e372ba6ff98bfffeea97"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -712,6 +714,7 @@
     "grpclog",
     "internal",
     "internal/backoff",
+    "internal/balancerload",
     "internal/binarylog",
     "internal/channelz",
     "internal/envconfig",
@@ -726,13 +729,14 @@
     "resolver",
     "resolver/dns",
     "resolver/passthrough",
+    "serviceconfig",
     "stats",
     "status",
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "df014850f6dee74ba2fc94874043a9f3f75fbfd8"
-  version = "v1.17.0"
+  revision = "045159ad57f3781d409358e3ade910a018c16b30"
+  version = "v1.22.1"
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
@@ -788,8 +792,8 @@
     "storage/v1beta1",
   ]
   pruneopts = "NUT"
-  revision = "145d52631d00cbfe68490d19ae4f0f501fd31a95"
-  version = "kubernetes-1.12.6"
+  revision = "9ad12a4af32677db3ae70bef3371bf9b618eb3a0"
+  version = "kubernetes-1.12.9"
 
 [[projects]]
   digest = "1:119ae04ee44c5d179dcde1ee686f057cfe3fc54a7ee8484b920932a80309e88b"
@@ -847,7 +851,7 @@
   version = "kubernetes-1.12.9"
 
 [[projects]]
-  digest = "1:3ca7df0bbf551a81b152726b5e939a757c193d92999e8cc68059f565b1759151"
+  digest = "1:4881ef59706d60c28ebd108f890a8617a04614bd4f680547da02855ba45ef1df"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -986,8 +990,8 @@
     "util/workqueue",
   ]
   pruneopts = "NUT"
-  revision = "78295b709ec6fa5be12e35892477a326dea2b5d3"
-  version = "kubernetes-1.12.6"
+  revision = "4f3abb12cae2d6817e1b6d72d9cbc3d3a6ddf965"
+  version = "kubernetes-1.12.9"
 
 [[projects]]
   branch = "master"

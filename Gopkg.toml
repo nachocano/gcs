@@ -26,32 +26,26 @@ required = [
   non-go = false
 
 [[override]]
+  name = "knative.dev/pkg"
+  revision = "master"
+
+[[override]]
   name = "k8s.io/client-go"
-  version = "kubernetes-1.12.6"
+  version = "kubernetes-1.12.9"
+
+[[override]]
+  name = "k8s.io/api"
+  version = "kubernetes-1.12.9"
 
 [[override]]
   name = "k8s.io/apimachinery"
   version = "kubernetes-1.12.9"
 
 [[override]]
-  name = "k8s.io/api"
-  version = "kubernetes-1.12.6"
-
-[[override]]
-  name = "knative.dev/pkg"
-  revision = "master"
-
-[[override]]
-  name = "github.com/json-iterator/go"
-  # This is the commit at which k8s depends on this in 1.11
-  # It seems to be broken at HEAD.
-  revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
-
-# needed because pkg upgraded
-[[override]]
-  name = "go.uber.org/zap"
-  revision = "67bc79d13d155c02fd008f721863ff8cc5f30659"
+  name = "google.golang.org/grpc"
+  version = "1.22.1"
 
 [[override]]
   name="github.com/knative/eventing-contrib"
   version = "0.7.1"
+
