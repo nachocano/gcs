@@ -33,19 +33,19 @@ func (s *GCSSourceSpec) SetDefaults(ctx context.Context) {
 	}
 
 	if s.EventTypes.Finalize != nil {
-		s.EventTypes.Finalize.Type = gCSFinalizeType
-		s.EventTypes.Finalize.Schema = gCSFinalizeSchema
+		s.EventTypes.Finalize.Type = GCSFinalizeType
+		s.EventTypes.Finalize.Schema = GCSFinalizeSchema
 	}
 	if s.EventTypes.Archive != nil {
-		s.EventTypes.Archive.Type = gCSArchiveType
-		s.EventTypes.Archive.Schema = gCSArchiveSchema
+		s.EventTypes.Archive.Type = GCSArchiveType
+		s.EventTypes.Archive.Schema = GCSArchiveSchema
 	}
 	if s.EventTypes.Delete != nil {
-		s.EventTypes.Delete.Type = gCSDeleteType
-		s.EventTypes.Delete.Schema = gCSDeleteSchema
+		s.EventTypes.Delete.Type = GCSDeleteType
+		s.EventTypes.Delete.Schema = GCSDeleteSchema
 	}
 	if s.EventTypes.MetadataUpdate != nil {
-		s.EventTypes.MetadataUpdate.Type = gCSMetaUpdateType
-		s.EventTypes.MetadataUpdate.Schema = gCSMetaUpdateSchema
+		s.EventTypes.MetadataUpdate.Type = GCSMetaUpdateType
+		s.EventTypes.MetadataUpdate.Schema = GCSMetaUpdateSchema
 	}
 }

@@ -34,6 +34,9 @@ import (
 	pubsubsourceinformers "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions"
 	clientset "github.com/vaikas-google/gcs/pkg/client/clientset/versioned"
 	informers "github.com/vaikas-google/gcs/pkg/client/informers/externalversions"
+
+	eventingclientset "github.com/knative/eventing/pkg/client/clientset/versioned"
+	eventinginformers "github.com/knative/eventing/pkg/client/informers/externalversions"
 	"github.com/vaikas-google/gcs/pkg/reconciler/gcs"
 )
 
@@ -81,11 +84,19 @@ func main() {
 		logger.Fatalf("Error building pubsubsource clientset: %s", err.Error())
 	}
 
+	eventingClient, err := eventingclientset.NewForConfig(cfg)
+	if err != nil {
+		logger.Fatalf("Error building eventing clientset: %s", err.Error())
+	}
+
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	gcsSourceInformerFactory := informers.NewSharedInformerFactory(gcsSourceClient, time.Second*30)
+	eventingInformerFactory := eventinginformers.NewSharedInformerFactory(eventingClient, time.Second*30)
 
 	// obtain a reference to a shared index informer for the GCSSource type.
 	gcsSourceInformer := gcsSourceInformerFactory.Sources().V1alpha1().GCSSources()
+
+	eventTypeInformer := eventingInformerFactory.Eventing().V1alpha1().EventTypes()
 
 	pubsubsourceInformerFactory := pubsubsourceinformers.NewSharedInformerFactory(pubsubsourceClient, time.Second*30)
 	pubsubsourceInformer := pubsubsourceInformerFactory.Sources().V1alpha1().GcpPubSubSources()
@@ -100,18 +111,22 @@ func main() {
 			gcsSourceInformer,
 			pubsubsourceClient,
 			pubsubsourceInformer,
+			eventingClient,
+			eventTypeInformer,
 		),
 	}
 
 	go kubeInformerFactory.Start(stopCh)
 	go gcsSourceInformerFactory.Start(stopCh)
 	go pubsubsourceInformerFactory.Start(stopCh)
+	go eventingInformerFactory.Start(stopCh)
 
 	// Wait for the caches to be synced before starting controllers.
 	logger.Info("Waiting for informer caches to sync")
 	for i, synced := range []cache.InformerSynced{
 		gcsSourceInformer.Informer().HasSynced,
 		pubsubsourceInformer.Informer().HasSynced,
+		eventTypeInformer.Informer().HasSynced,
 	} {
 		if ok := cache.WaitForCacheSync(stopCh, synced); !ok {
 			logger.Fatalf("failed to wait for cache at index %v to sync", i)

@@ -294,9 +294,34 @@
   revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
 
 [[projects]]
-  digest = "1:699f2f6a73ca838a147a824988b8c2106a2cc8f4a9a21166723b8c337fec2e18"
+  digest = "1:12ec40d1b02f6e5d32e3aebb4780ccd165ebb7c5c1c3470bdd759fc0adb4d0ca"
   name = "github.com/knative/eventing"
-  packages = ["pkg/logconfig"]
+  packages = [
+    "pkg/apis/duck/v1alpha1",
+    "pkg/apis/eventing",
+    "pkg/apis/eventing/v1alpha1",
+    "pkg/apis/messaging",
+    "pkg/apis/messaging/v1alpha1",
+    "pkg/apis/sources",
+    "pkg/apis/sources/v1alpha1",
+    "pkg/client/clientset/versioned",
+    "pkg/client/clientset/versioned/scheme",
+    "pkg/client/clientset/versioned/typed/eventing/v1alpha1",
+    "pkg/client/clientset/versioned/typed/messaging/v1alpha1",
+    "pkg/client/clientset/versioned/typed/sources/v1alpha1",
+    "pkg/client/informers/externalversions",
+    "pkg/client/informers/externalversions/eventing",
+    "pkg/client/informers/externalversions/eventing/v1alpha1",
+    "pkg/client/informers/externalversions/internalinterfaces",
+    "pkg/client/informers/externalversions/messaging",
+    "pkg/client/informers/externalversions/messaging/v1alpha1",
+    "pkg/client/informers/externalversions/sources",
+    "pkg/client/informers/externalversions/sources/v1alpha1",
+    "pkg/client/listers/eventing/v1alpha1",
+    "pkg/client/listers/messaging/v1alpha1",
+    "pkg/client/listers/sources/v1alpha1",
+    "pkg/logconfig",
+  ]
   pruneopts = "NUT"
   revision = "7df0cc56c28d58223ff25d5ddfb487fa8c29a004"
   version = "v0.7.1"
@@ -321,17 +346,21 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:843f0f6c5c4005a66780a87e37b22679ad56acd80ac444ddc570258585b30b45"
+  digest = "1:b1aae517964cf9644eac304adc317ebfe047c86b38dbc5904e446e4aa33625ec"
   name = "github.com/knative/pkg"
   packages = [
     "apis",
     "apis/duck",
+    "apis/duck/v1alpha1",
+    "apis/duck/v1beta1",
     "cloudevents",
     "controller",
     "kmeta",
+    "kmp",
     "logging",
     "logging/logkey",
     "signals",
+    "webhook",
   ]
   pruneopts = "NUT"
   revision = "fe4877abb6e40f2419d62e58e90138528f9aade9"
@@ -1103,6 +1132,11 @@
     "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/clientset/versioned",
     "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions",
     "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions/sources/v1alpha1",
+    "github.com/knative/eventing/pkg/apis/eventing/v1alpha1",
+    "github.com/knative/eventing/pkg/client/clientset/versioned",
+    "github.com/knative/eventing/pkg/client/informers/externalversions",
+    "github.com/knative/eventing/pkg/client/informers/externalversions/eventing/v1alpha1",
+    "github.com/knative/eventing/pkg/client/listers/eventing/v1alpha1",
     "github.com/knative/eventing/pkg/logconfig",
     "github.com/knative/pkg/apis",
     "github.com/knative/pkg/apis/duck",

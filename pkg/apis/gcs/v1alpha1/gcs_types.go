@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
 	"github.com/knative/pkg/apis/duck"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -147,33 +148,42 @@ const (
 
 	// GCSReady has status True when GCS has been configured properly to send Notification events
 	GCSReady duckv1alpha1.ConditionType = "GCSReady"
+
+	// GCSEventTypesProvided has status True when the EventTypes has been added to the Registry.
+	GCSEventTypesProvided duckv1alpha1.ConditionType = "GCSEventTypesProvided"
 )
 
-const (
-	gCSFinalizeType   = "com.google.storage.finalize"
-	gCSArchiveType    = "com.google.storage.archive"
-	gCSDeleteType     = "com.google.storage.delete"
-	gCSMetaUpdateType = "com.google.storage.metadataUpdate"
+// GCSEventSource returns the GCS CloudEvent source value.
+func GCSEventSource(project, bucket string) string {
+	return fmt.Sprintf("%s/%s", project, bucket)
+}
 
-	gCSFinalizeSchema   = "finalize-schema"
-	gCSArchiveSchema    = "archive-schema"
-	gCSDeleteSchema     = "delete-schema"
-	gCSMetaUpdateSchema = "metadataUpdate-schema"
+const (
+	GCSFinalizeType   = "com.google.storage.finalize"
+	GCSArchiveType    = "com.google.storage.archive"
+	GCSDeleteType     = "com.google.storage.delete"
+	GCSMetaUpdateType = "com.google.storage.metadataUpdate"
+
+	GCSFinalizeSchema   = "finalize-schema"
+	GCSArchiveSchema    = "archive-schema"
+	GCSDeleteSchema     = "delete-schema"
+	GCSMetaUpdateSchema = "metadataUpdate-schema"
 )
 
 var (
 	GCSEventTypesMapping = map[string]string{
-		gCSFinalizeType:   "OBJECT_FINALIZE",
-		gCSArchiveType:    "OBJECT_ARCHIVE",
-		gCSDeleteType:     "OBJECT_DELETE",
-		gCSMetaUpdateType: "OBJECT_METADATA_UPDATE",
+		GCSFinalizeType:   "OBJECT_FINALIZE",
+		GCSArchiveType:    "OBJECT_ARCHIVE",
+		GCSDeleteType:     "OBJECT_DELETE",
+		GCSMetaUpdateType: "OBJECT_METADATA_UPDATE",
 	}
 )
 
 var gcsSourceCondSet = duckv1alpha1.NewLivingConditionSet(
 	PubSubSourceReady,
 	PubSubTopicReady,
-	GCSReady)
+	GCSReady,
+	GCSEventTypesProvided)
 
 // GCSSourceStatus is the status for a GCSSource resource
 type GCSSourceStatus struct {
@@ -229,6 +239,15 @@ func (s *GCSSourceStatus) MarkPubSubTopicNotReady(reason, messageFormat string, 
 // MarkPubSubTopicReady sets the condition that the underlying PubSub topic was created successfully
 func (s *GCSSourceStatus) MarkPubSubTopicReady() {
 	gcsSourceCondSet.Manage(s).MarkTrue(PubSubTopicReady)
+}
+
+func (s *GCSSourceStatus) MarkEventTypesProvided() {
+	gcsSourceCondSet.Manage(s).MarkTrue(GCSEventTypesProvided)
+}
+
+// MarkEventTypesNotProvided sets the condition that the GCS has not been configured with EventTypes.
+func (s *GCSSourceStatus) MarkEventTypesNotProvided(reason, messageFormat string, messageA ...interface{}) {
+	gcsSourceCondSet.Manage(s).MarkFalse(GCSEventTypesProvided, reason, messageFormat, messageA...)
 }
 
 // MarkGCSNotReady sets the condition that the GCS has been configured to send Notifications

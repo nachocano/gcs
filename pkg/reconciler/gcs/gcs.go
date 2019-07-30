@@ -19,6 +19,7 @@ package gcs
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/labels"
 	"reflect"
 
 	"github.com/google/uuid"
@@ -35,9 +36,12 @@ import (
 	"cloud.google.com/go/storage"
 
 	pubsubsourcev1alpha1 "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/apis/sources/v1alpha1"
-
 	pubsubsourceclientset "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/clientset/versioned"
 	pubsubsourceinformers "github.com/knative/eventing-contrib/contrib/gcppubsub/pkg/client/informers/externalversions/sources/v1alpha1"
+	eventingv1alpha1 "github.com/knative/eventing/pkg/apis/eventing/v1alpha1"
+	eventingclientset "github.com/knative/eventing/pkg/client/clientset/versioned"
+	eventinginformers "github.com/knative/eventing/pkg/client/informers/externalversions/eventing/v1alpha1"
+	eventinglisters "github.com/knative/eventing/pkg/client/listers/eventing/v1alpha1"
 	"github.com/vaikas-google/gcs/pkg/apis/gcs/v1alpha1"
 	clientset "github.com/vaikas-google/gcs/pkg/client/clientset/versioned"
 	gcssourcescheme "github.com/vaikas-google/gcs/pkg/client/clientset/versioned/scheme"
@@ -72,6 +76,10 @@ type Reconciler struct {
 	pubsubClient   pubsubsourceclientset.Interface
 	pubsubInformer pubsubsourceinformers.GcpPubSubSourceInformer
 
+	eventtypeLister    eventinglisters.EventTypeLister
+	eventtypeclientset eventingclientset.Interface
+	eventtypeInformer  eventinginformers.EventTypeInformer
+
 	// Sugared logger is easier to use but is not as performant as the
 	// raw logger. In performance critical paths, call logger.Desugar()
 	// and use the returned raw logger instead. In addition to the
@@ -98,6 +106,9 @@ func NewController(
 	gcssourceInformer informers.GCSSourceInformer,
 	pubsubclientset pubsubsourceclientset.Interface,
 	pubsubsourceInformer pubsubsourceinformers.GcpPubSubSourceInformer,
+	eventingclientset eventingclientset.Interface,
+	eventtypeInformer eventinginformers.EventTypeInformer,
+
 ) *controller.Impl {
 
 	// Enrich the logs with controller name
@@ -109,6 +120,8 @@ func NewController(
 		gcssourceclientset: gcssourceclientset,
 		gcssourcesLister:   gcssourceInformer.Lister(),
 		pubsubClient:       pubsubclientset,
+		eventtypeclientset: eventingclientset,
+		eventtypeLister:    eventtypeInformer.Lister(),
 		Logger:             logger,
 	}
 	impl := controller.NewImpl(r, logger, "GCSSources")
@@ -117,6 +130,12 @@ func NewController(
 
 	// Set up an event handler for when GCSSource resources change
 	gcssourceInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc:    impl.Enqueue,
+		UpdateFunc: controller.PassNew(impl.Enqueue),
+	})
+
+	// Set up an event handler for when EventType resources change
+	eventtypeInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc:    impl.Enqueue,
 		UpdateFunc: controller.PassNew(impl.Enqueue),
 	})
@@ -247,9 +266,17 @@ func (c *Reconciler) reconcileGCSSource(ctx context.Context, csr *v1alpha1.GCSSo
 	}
 
 	csr.Status.MarkGCSReady()
-
 	c.Logger.Infof("Reconciled GCS notification: %+v", notification)
 	csr.Status.NotificationID = notification.ID
+
+	err = c.reconcileEventTypes(ctx, csr)
+	if err != nil {
+		c.Logger.Infof("Failed to reconcile GCS EventTypes: %s", err)
+		csr.Status.MarkEventTypesNotProvided(fmt.Sprintf("Failed to reconcile GCS EventTypes: %s", err), "")
+	}
+
+	csr.Status.MarkEventTypesProvided()
+
 	return nil
 }
 
@@ -305,7 +332,7 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 		TopicProjectID:   gcs.Spec.GoogleCloudProject,
 		TopicID:          gcs.Status.Topic,
 		PayloadFormat:    storage.JSONPayload,
-		EventTypes:       c.getEventTypes(gcs.Spec.EventTypes),
+		EventTypes:       c.getEventTypesAsString(gcs.Spec.EventTypes),
 		ObjectNamePrefix: gcs.Spec.ObjectNamePrefix,
 		CustomAttributes: customAttributes,
 	})
@@ -319,7 +346,7 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 	return notification, nil
 }
 
-func (c *Reconciler) getEventTypes(gcsTypes *v1alpha1.GCSEventTypes) []string {
+func (c *Reconciler) getEventTypesAsString(gcsTypes *v1alpha1.GCSEventTypes) []string {
 	eventTypes := make([]string, 0)
 	if gcsTypes.Finalize != nil {
 		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Finalize.Type])
@@ -367,6 +394,140 @@ func (c *Reconciler) reconcileTopic(csr *v1alpha1.GCSSource) error {
 	}
 	c.Logger.Infof("Created topic %q : %+v", csr.Status.Topic, newTopic)
 	return nil
+}
+
+func (r *Reconciler) reconcileEventTypes(ctx context.Context, src *v1alpha1.GCSSource) error {
+	current, err := r.getEventTypes(ctx, src)
+	if err != nil {
+		r.Logger.Errorf("Unable to get existing event types: %v", err)
+		return err
+	}
+
+	expected, err := r.makeEventTypes(src)
+	if err != nil {
+		return err
+	}
+
+	toCreate, toDelete := r.computeDiff(current, expected)
+
+	for _, eventType := range toDelete {
+		if err = r.eventtypeclientset.EventingV1alpha1().EventTypes(src.Namespace).Delete(eventType.Name, &metav1.DeleteOptions{}); err != nil {
+			r.Logger.Errorf("Error deleting eventType: %v", eventType)
+			return err
+		}
+	}
+
+	for _, eventType := range toCreate {
+		if _, err = r.eventtypeclientset.EventingV1alpha1().EventTypes(src.Namespace).Create(&eventType); err != nil {
+			r.Logger.Errorf("Error creating eventType: %v", eventType)
+			return err
+		}
+	}
+
+	return err
+}
+
+func (r *Reconciler) getEventTypes(ctx context.Context, src *v1alpha1.GCSSource) ([]eventingv1alpha1.EventType, error) {
+	etl, err := r.eventtypeclientset.EventingV1alpha1().EventTypes(src.Namespace).List(metav1.ListOptions{
+		LabelSelector: labels.SelectorFromSet(resources.Labels(src.Name)).String(),
+	})
+
+	if err != nil {
+		r.Logger.Errorf("Unable to list event types: %v", err)
+		return nil, err
+	}
+	eventTypes := make([]eventingv1alpha1.EventType, 0)
+	for _, et := range etl.Items {
+		if metav1.IsControlledBy(&et, src) {
+			eventTypes = append(eventTypes, et)
+		}
+	}
+	return eventTypes, nil
+}
+
+func (r *Reconciler) makeEventTypes(src *v1alpha1.GCSSource) ([]eventingv1alpha1.EventType, error) {
+	// TODO in resources.
+	eventTypes := make([]eventingv1alpha1.EventType, 0)
+
+	// Only create EventTypes for Broker sinks.
+	// We add this check here in case the GCSSource was changed from Broker to non-Broker sink.
+	// If so, we need to delete the existing ones, thus we return empty expected.
+	if src.Spec.Sink.Kind != "Broker" {
+		return eventTypes, nil
+	}
+
+	ets := src.Spec.EventTypes
+	specs := make([]eventingv1alpha1.EventTypeSpec, 0)
+	templateSpec := eventingv1alpha1.EventTypeSpec{
+		Source: v1alpha1.GCSEventSource(src.Spec.GoogleCloudProject, src.Spec.Bucket),
+		Broker: src.Spec.Sink.Name,
+	}
+	if ets.Finalize != nil {
+		spec := templateSpec.DeepCopy()
+		spec.Type = v1alpha1.GCSFinalizeType
+		spec.Schema = v1alpha1.GCSFinalizeSchema
+		specs = append(specs, *spec)
+	}
+	if ets.Delete != nil {
+		spec := templateSpec.DeepCopy()
+		spec.Type = v1alpha1.GCSDeleteType
+		spec.Schema = v1alpha1.GCSDeleteSchema
+		specs = append(specs, *spec)
+	}
+	if ets.Archive != nil {
+		spec := templateSpec.DeepCopy()
+		spec.Type = v1alpha1.GCSArchiveType
+		spec.Schema = v1alpha1.GCSArchiveType
+		specs = append(specs, *spec)
+	}
+	if ets.MetadataUpdate != nil {
+		spec := templateSpec.DeepCopy()
+		spec.Type = v1alpha1.GCSMetaUpdateType
+		spec.Schema = v1alpha1.GCSMetaUpdateSchema
+		specs = append(specs, *spec)
+	}
+
+	return eventTypes, nil
+}
+
+func (r *Reconciler) computeDiff(current []eventingv1alpha1.EventType, expected []eventingv1alpha1.EventType) ([]eventingv1alpha1.EventType, []eventingv1alpha1.EventType) {
+	toCreate := make([]eventingv1alpha1.EventType, 0)
+	toDelete := make([]eventingv1alpha1.EventType, 0)
+	currentMap := asMap(current, keyFromEventType)
+	expectedMap := asMap(expected, keyFromEventType)
+
+	// Iterate over the slices instead of the maps for predictable UT expectations.
+	for _, e := range expected {
+		if c, ok := currentMap[keyFromEventType(&e)]; !ok {
+			toCreate = append(toCreate, e)
+		} else {
+			if !equality.Semantic.DeepEqual(e.Spec, c.Spec) {
+				toDelete = append(toDelete, c)
+				toCreate = append(toCreate, e)
+			}
+		}
+	}
+	// Need to check whether the current EventTypes are not in the expected map. If so, we have to delete them.
+	// This could happen if the GCSSource CO changes its broker.
+	for _, c := range current {
+		if _, ok := expectedMap[keyFromEventType(&c)]; !ok {
+			toDelete = append(toDelete, c)
+		}
+	}
+	return toCreate, toDelete
+}
+
+func asMap(eventTypes []eventingv1alpha1.EventType, keyFunc func(*eventingv1alpha1.EventType) string) map[string]eventingv1alpha1.EventType {
+	eventTypesAsMap := make(map[string]eventingv1alpha1.EventType, 0)
+	for _, eventType := range eventTypes {
+		key := keyFunc(&eventType)
+		eventTypesAsMap[key] = eventType
+	}
+	return eventTypesAsMap
+}
+
+func keyFromEventType(eventType *eventingv1alpha1.EventType) string {
+	return fmt.Sprintf("%s_%s_%s_%s", eventType.Spec.Type, eventType.Spec.Source, eventType.Spec.Schema, eventType.Spec.Broker)
 }
 
 func (c *Reconciler) deleteTopic(project string, topic string) error {
