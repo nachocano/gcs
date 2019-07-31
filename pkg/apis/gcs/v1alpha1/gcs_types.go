@@ -88,7 +88,6 @@ type GCSSourceSpec struct {
 	EventTypes []string `json:"eventTypes"`
 
 	// EventTypes to subscribe to
-	// +kubebuilder:validation:Enum=finalize,delete,archive,metadataUpdate
 	EventTypesInternal *GCSEventTypes `json:"_eventTypes,omitempty"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
