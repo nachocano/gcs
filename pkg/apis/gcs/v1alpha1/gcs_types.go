@@ -22,11 +22,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"knative.dev/pkg/apis"
 	duckv1alpha1 "knative.dev/pkg/apis/duck/v1alpha1"
 	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
 	"knative.dev/pkg/kmeta"
-	"knative.dev/pkg/webhook"
 )
 
 // +genclient
@@ -45,11 +43,7 @@ type GCSSource struct {
 // Check that GCSSource implements the Conditions duck type.
 var (
 	// Check that Channel can be validated, can be defaulted, and has immutable fields.
-	_ apis.Validatable   = (*GCSSource)(nil)
-	_ apis.Defaultable   = (*GCSSource)(nil)
-	_ apis.Immutable     = (*GCSSource)(nil)
-	_ runtime.Object     = (*GCSSource)(nil)
-	_ webhook.GenericCRD = (*GCSSource)(nil)
+	_ runtime.Object = (*GCSSource)(nil)
 
 	// Check that we can create OwnerReferences to a Channel.
 	_ kmeta.OwnerRefable = (*GCSSource)(nil)
@@ -88,7 +82,7 @@ type GCSSourceSpec struct {
 	EventTypes []string `json:"eventTypes"`
 
 	// EventTypes to subscribe to
-	EventTypesInternal *GCSEventTypes `json:"_eventTypes,omitempty"`
+	// EventTypesInternal *GCSEventTypes `json:"_eventTypes,omitempty"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
 	// +optional
@@ -108,35 +102,6 @@ type GCSSourceSpec struct {
 	// as the sink.
 	// +optional
 	Sink *corev1.ObjectReference `json:"sink,omitempty"`
-}
-
-// GCSEventTypes contains the event types that can be configured by the GCSSource.
-type GCSEventTypes struct {
-	Finalize       *GCSObjectFinalize `json:"finalize,omitempty"`
-	Delete         *GCSObjectDelete   `json:"delete,omitempty"`
-	Archive        *GCSObjectArchive  `json:"archive,omitempty"`
-	MetadataUpdate *GCSMetadataUpdate `json:"metadataUpdate,omitempty"`
-}
-
-type CloudEventProperties struct {
-	Type   string `json:"type"`
-	Schema string `json:"schema"`
-}
-
-type GCSObjectFinalize struct {
-	CloudEventProperties `json:",inline"`
-}
-
-type GCSObjectDelete struct {
-	CloudEventProperties `json:",inline"`
-}
-
-type GCSObjectArchive struct {
-	CloudEventProperties `json:",inline"`
-}
-
-type GCSMetadataUpdate struct {
-	CloudEventProperties `json:",inline"`
 }
 
 const (

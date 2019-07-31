@@ -31,7 +31,7 @@ spec:
           type: object
         spec:
           properties:
-            _eventTypes:
+            _eventTypesSupported:
               type: object
               description: "Internal description of event types, users should not set this property"
               properties:
