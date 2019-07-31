@@ -84,7 +84,12 @@ type GCSSourceSpec struct {
 	Bucket string `json:"bucket"`
 
 	// EventTypes to subscribe to
-	EventTypes *GCSEventTypes `json:"eventTypes,omitempty"`
+	// +kubebuilder:validation:Enum=finalize,delete,archive,metadataUpdate
+	EventTypes []string `json:"eventTypes"`
+
+	// EventTypes to subscribe to
+	// +kubebuilder:validation:Enum=finalize,delete,archive,metadataUpdate
+	EventTypesInternal *GCSEventTypes `json:"___eventTypes,omitempty"`
 
 	// ObjectNamePrefix limits the notifications to objects with this prefix
 	// +optional
@@ -115,8 +120,8 @@ type GCSEventTypes struct {
 }
 
 type CloudEventProperties struct {
-	Type   string `json:"ceType"`
-	Schema string `json:"ceSchema"`
+	Type   string `json:"type"`
+	Schema string `json:"schema"`
 }
 
 type GCSObjectFinalize struct {
@@ -150,15 +155,10 @@ const (
 )
 
 const (
-	gCSFinalizeType   = "com.google.storage.finalize"
-	gCSArchiveType    = "com.google.storage.archive"
-	gCSDeleteType     = "com.google.storage.delete"
-	gCSMetaUpdateType = "com.google.storage.metadataUpdate"
-
-	gCSFinalizeSchema   = "finalize-schema"
-	gCSArchiveSchema    = "archive-schema"
-	gCSDeleteSchema     = "delete-schema"
-	gCSMetaUpdateSchema = "metadataUpdate-schema"
+	gCSFinalizeType   = "finalize"
+	gCSArchiveType    = "archive"
+	gCSDeleteType     = "delete"
+	gCSMetaUpdateType = "metadataUpdate"
 )
 
 var (

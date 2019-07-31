@@ -23,29 +23,8 @@ func (gcs *GCSSource) SetDefaults(ctx context.Context) {
 }
 
 func (s *GCSSourceSpec) SetDefaults(ctx context.Context) {
-	// If nil, we will subscribe to all EventTypes.
-	if s.EventTypes == nil {
-		s.EventTypes = &GCSEventTypes{}
-		s.EventTypes.Finalize = &GCSObjectFinalize{}
-		s.EventTypes.Delete = &GCSObjectDelete{}
-		s.EventTypes.Archive = &GCSObjectArchive{}
-		s.EventTypes.MetadataUpdate = &GCSMetadataUpdate{}
-	}
-
-	if s.EventTypes.Finalize != nil {
-		s.EventTypes.Finalize.Type = gCSFinalizeType
-		s.EventTypes.Finalize.Schema = gCSFinalizeSchema
-	}
-	if s.EventTypes.Archive != nil {
-		s.EventTypes.Archive.Type = gCSArchiveType
-		s.EventTypes.Archive.Schema = gCSArchiveSchema
-	}
-	if s.EventTypes.Delete != nil {
-		s.EventTypes.Delete.Type = gCSDeleteType
-		s.EventTypes.Delete.Schema = gCSDeleteSchema
-	}
-	if s.EventTypes.MetadataUpdate != nil {
-		s.EventTypes.MetadataUpdate.Type = gCSMetaUpdateType
-		s.EventTypes.MetadataUpdate.Schema = gCSMetaUpdateSchema
+	// If eventTypes is empty, we will subscribe to all EventTypes.
+	if len(s.EventTypes) == 0 {
+		s.EventTypes = []string{gCSFinalizeType, gCSDeleteType, gCSArchiveType, gCSMetaUpdateType}
 	}
 }

@@ -319,21 +319,12 @@ func (c *Reconciler) reconcileNotification(gcs *v1alpha1.GCSSource) (*storage.No
 	return notification, nil
 }
 
-func (c *Reconciler) getEventTypes(gcsTypes *v1alpha1.GCSEventTypes) []string {
-	eventTypes := make([]string, 0)
-	if gcsTypes.Finalize != nil {
-		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Finalize.Type])
+func (c *Reconciler) getEventTypes(eventTypes []string) []string {
+	gcsTypes := make([]string, 0, len(eventTypes))
+	for _, eventType := range eventTypes {
+		gcsTypes = append(gcsTypes, v1alpha1.GCSEventTypesMapping[eventType])
 	}
-	if gcsTypes.Archive != nil {
-		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Archive.Type])
-	}
-	if gcsTypes.Delete != nil {
-		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.Delete.Type])
-	}
-	if gcsTypes.MetadataUpdate != nil {
-		eventTypes = append(eventTypes, v1alpha1.GCSEventTypesMapping[gcsTypes.MetadataUpdate.Type])
-	}
-	return eventTypes
+	return gcsTypes
 }
 
 func (c *Reconciler) reconcileTopic(csr *v1alpha1.GCSSource) error {

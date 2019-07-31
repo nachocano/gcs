@@ -31,45 +31,56 @@ spec:
           type: object
         spec:
           properties:
-            eventTypes:
+            ___eventTypes:
               type: object
+              description: "Internal description of event types, users should not set this property"
               properties:
                 finalize:
                   type: object
                   properties:
-                    ceType:
+                    type:
                       type: string
                       pattern: "com.google.storage.finalize"
-                    ceSchema:
+                    schema:
                       type: string
-                      pattern: "finalize-schema"
+                      pattern: "https://cloud.google.com/cloudevents/schemas/gcs/finalize.json"
                 delete:
                   type: object
                   properties:
-                    ceType:
+                    type:
                       type: string
                       pattern: "com.google.storage.delete"
-                    ceSchema:
+                    schema:
                       type: string
-                      pattern: "delete-schema"
+                      pattern: "https://cloud.google.com/cloudevents/schemas/gcs/delete.json"
                 archive:
                   type: object
                   properties:
-                    ceType:
+                    type:
                       type: string
                       pattern: "com.google.storage.archive"
-                    ceSchema:
+                    schema:
                       type: string
-                      pattern: "archive-schema"
+                      pattern: "https://cloud.google.com/cloudevents/schemas/gcs/archive.json"
                 metadataUpdate:
                   type: object
                   properties:
-                    ceType:
+                    type:
                       type: string
                       pattern: "com.google.storage.metadataUpdate"
-                    ceSchema:
+                    schema:
                       type: string
-                      pattern: "metadataUpdate-schema"
+                      pattern: "https://cloud.google.com/cloudevents/schemas/gcs/metadataUpdate.json"
+            eventTypes:
+              type: array
+              items:
+                enum:
+                  - finalize
+                  - delete
+                  - archive
+                  - metadataUpdate
+                type: string
+              description: "The event types to subscribe to. If none is specified, we default to all of them"
             gcsCredsSecret:
               type: object
               description: "Credential to use for creating a GCP notification. Must be a service account key in JSON format (see https://cloud.google.com/iam/docs/creating-managing-service-account-keys)."

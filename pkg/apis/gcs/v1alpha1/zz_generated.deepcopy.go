@@ -217,6 +217,11 @@ func (in *GCSSourceSpec) DeepCopyInto(out *GCSSourceSpec) {
 	}
 	if in.EventTypes != nil {
 		in, out := &in.EventTypes, &out.EventTypes
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
+	if in.EventTypesInternal != nil {
+		in, out := &in.EventTypesInternal, &out.EventTypesInternal
 		*out = new(GCSEventTypes)
 		(*in).DeepCopyInto(*out)
 	}
