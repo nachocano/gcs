@@ -34,7 +34,7 @@ func (s *GCSSourceSpec) Validate(ctx context.Context) *apis.FieldError {
 	}
 
 	if s.EventTypesInternal != nil {
-		errs = errs.Also(apis.ErrDisallowedFields("___eventTypes"))
+		errs = errs.Also(apis.ErrDisallowedFields("_eventTypes"))
 	}
 
 	return errs
